@@ -57,7 +57,14 @@ class Database {
                 self::initSchema(self::$instance, 'mysql');
             } catch (Exception $serverEx) {
                 // If MySQL is completely down/not started, fallback to SQLite for 100% resilient demo execution
-                $sqlitePath = __DIR__ . '/../database/build_in_60.sqlite';
+                $dbDir = __DIR__ . '/../database';
+                $sqlitePath = $dbDir . '/build_in_60.sqlite';
+                
+                // In serverless environments (e.g. Vercel/Lambda), the code dir is read-only, use sys_get_temp_dir()
+                if (!is_dir($dbDir) || !is_writable($dbDir)) {
+                    $sqlitePath = sys_get_temp_dir() . '/build_in_60.sqlite';
+                }
+                
                 $isNewSqlite = !file_exists($sqlitePath);
                 self::$instance = new PDO("sqlite:" . $sqlitePath, null, null, [
                     PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
