@@ -16,8 +16,8 @@ Here are the exact answers formatted and ready to paste into your submission for
 
 ---
 
-### 2. Working Asset Link (Short answer / URL)
-https://github.com/Snehalatha4/Nxtwave_GrowthIntern_Challenge
+https://nxtwavegrowthinternchallenge-eta.vercel.app (Live Application)
+GitHub Repository: https://github.com/Snehalatha4/Nxtwave_GrowthIntern_Challenge
 ```
 *(If demonstrating locally in your video: `http://localhost:8000`)*
 
