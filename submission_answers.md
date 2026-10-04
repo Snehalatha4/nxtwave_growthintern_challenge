@@ -17,9 +17,7 @@ Here are the exact answers formatted and ready to paste into your submission for
 ---
 
 ### 2. Working Asset Link (Short answer / URL)
-*Paste your GitHub repository link or live demo URL here. Example:*
-```text
-https://github.com/your-username/build-in-60-growth-engine
+https://github.com/Snehalatha4/Nxtwave_GrowthIntern_Challenge
 ```
 *(If demonstrating locally in your video: `http://localhost:8000`)*
 
