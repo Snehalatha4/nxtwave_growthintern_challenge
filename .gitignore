@@ -1,0 +1,4 @@
+# Git ignore for BUILD IN 60
+*.log
+.DS_Store
+Thumbs.db
