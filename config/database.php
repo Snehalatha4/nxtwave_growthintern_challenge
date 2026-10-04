@@ -56,22 +56,29 @@ class Database {
                 self::$driver = 'mysql';
                 self::initSchema(self::$instance, 'mysql');
             } catch (Exception $serverEx) {
-                // If MySQL is completely down/not started, fallback to SQLite for 100% resilient demo execution
-                $dbDir = __DIR__ . '/../database';
-                $sqlitePath = $dbDir . '/build_in_60.sqlite';
-                
-                // In serverless environments (e.g. Vercel/Lambda), the code dir is read-only, use sys_get_temp_dir()
-                if (!is_dir($dbDir) || !is_writable($dbDir)) {
-                    $sqlitePath = sys_get_temp_dir() . '/build_in_60.sqlite';
-                }
-                
-                $isNewSqlite = !file_exists($sqlitePath);
-                self::$instance = new PDO("sqlite:" . $sqlitePath, null, null, [
-                    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-                    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-                ]);
+                // If MySQL is offline, fallback to SQLite with bulletproof serverless support
                 self::$driver = 'sqlite';
-                if ($isNewSqlite || filesize($sqlitePath) === 0) {
+                $pdoCreated = false;
+                
+                // Priority 1: /tmp/ directory (always writable on Vercel/AWS Lambda/Render)
+                $tempPath = sys_get_temp_dir() . '/build_in_60.sqlite';
+                try {
+                    $isNew = !file_exists($tempPath);
+                    self::$instance = new PDO("sqlite:" . $tempPath, null, null, [
+                        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+                    ]);
+                    $pdoCreated = true;
+                    if ($isNew || filesize($tempPath) === 0) {
+                        self::initSchema(self::$instance, 'sqlite');
+                    }
+                } catch (Exception $tmpEx) {
+                    // Priority 2: In-Memory SQLite (100% guaranteed to work anywhere with zero disk requirement)
+                    self::$instance = new PDO("sqlite::memory:", null, null, [
+                        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+                    ]);
+                    $pdoCreated = true;
                     self::initSchema(self::$instance, 'sqlite');
                 }
             }
